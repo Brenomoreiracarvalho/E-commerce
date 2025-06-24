@@ -1,14 +1,37 @@
 <template>
   <div class="home">
     <h1>Bem-vindo ao E-commerce</h1>
-    <p>Encontre os melhores produtos aqui!</p>
-    <router-link to="/produtos" class="btn">Ver Produtos</router-link>
+
+    <v-container>
+      <v-row>
+        <v-col
+          v-for="produto in produtos"
+          :key="produto.id"
+          cols="12"
+          sm="6"
+          md="4"
+          lg="3"
+        >
+          <CardProduto :produto="produto" />
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
+import CardProduto from '../Produtos/CardProduto.vue';
+import produtos from '../Mock/Produtos.js';
 export default {
   name: 'Home',
+  components: {
+    CardProduto
+  },
+  data() {
+    return {
+      produtos: produtos
+    };
+  }
 };
 </script>
 
