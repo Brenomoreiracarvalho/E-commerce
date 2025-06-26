@@ -5,7 +5,7 @@
     <v-container>
       <v-row>
         <v-col
-          v-for="produto in produtos"
+          v-for="produto in produtosPaginados"
           :key="produto.id"
           cols="12"
           sm="6"
@@ -15,6 +15,11 @@
           <CardProduto :produto="produto" />
         </v-col>
       </v-row>
+      <v-pagination
+        v-model="paginaAtual"
+        :length="paginas"
+        @input="mudarPagina"
+      ></v-pagination>
     </v-container>
   </div>
 </template>
@@ -22,6 +27,8 @@
 <script>
 import CardProduto from '../Produtos/CardProduto.vue';
 import produtos from '../Mock/Produtos.js';
+const prodtosPorPagina = 12;
+const paginas = Math.ceil(produtos.length / prodtosPorPagina);
 export default {
   name: 'Home',
   components: {
@@ -29,8 +36,22 @@ export default {
   },
   data() {
     return {
-      produtos: produtos
+      produtos: produtos,
+      paginas: paginas,
+      paginaAtual: 1,
     };
+  }
+  ,
+  computed: {
+    produtosPaginados() {
+      const inicio = (this.paginaAtual - 1) * prodtosPorPagina;
+      return this.produtos.slice(inicio, inicio + prodtosPorPagina);
+    }
+  },
+  methods: {
+    mudarPagina(pagina) {
+      this.paginaAtual = pagina;
+    }
   }
 };
 </script>
