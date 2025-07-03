@@ -20,6 +20,7 @@
           <v-btn
             color="primary"
             variant="outlined"
+            @click="$emit('adicionar')"
           >
             Adicionar ao Carrinho
           </v-btn>

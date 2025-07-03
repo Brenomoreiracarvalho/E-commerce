@@ -11,7 +11,10 @@
           md="4"
           lg="3"
         >
-          <CardProduto :produto="produto" />
+          <CardProduto
+            :produto="produto"
+            @adicionar="() => $emit('adicionar-ao-carrinho', produto)"
+          />
         </v-col>
       </v-row>
 

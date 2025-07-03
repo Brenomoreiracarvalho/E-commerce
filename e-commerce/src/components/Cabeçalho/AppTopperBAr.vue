@@ -28,7 +28,7 @@
       </v-col>
     </v-row>
 
-    <v-btn icon class="ml-4">
+    <v-btn icon @click="$emit('abrir-carrinho')">
       <v-icon>mdi-cart</v-icon>
     </v-btn>
   </v-toolbar>
