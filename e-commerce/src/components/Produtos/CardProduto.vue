@@ -15,24 +15,22 @@
       <v-row class="w-100" dense>
         <v-col
           cols="12"
-          sm="6"
+          sm="12"
         >
           <v-btn
             color="primary"
             variant="outlined"
-            block
           >
             Adicionar ao Carrinho
           </v-btn>
         </v-col>
         <v-col
           cols="12"
-          sm="6"
+          sm="12"
         >
           <v-btn
             color="secondary"
             variant="text"
-            block
           >
             Comprar Agora
           </v-btn>
