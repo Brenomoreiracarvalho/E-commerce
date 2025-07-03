@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    <h1>Bem-vindo ao E-commerce</h1>
 
     <v-container>
       <v-row>
@@ -15,6 +14,7 @@
           <CardProduto :produto="produto" />
         </v-col>
       </v-row>
+
       <v-pagination
         v-model="paginaAtual"
         :length="paginas"
@@ -27,32 +27,53 @@
 <script>
 import CardProduto from '../Produtos/CardProduto.vue';
 import produtos from '../Mock/Produtos.js';
-const prodtosPorPagina = 12;
-const paginas = Math.ceil(produtos.length / prodtosPorPagina);
+
+const produtosPorPagina = 12;
+
 export default {
   name: 'Home',
   components: {
-    CardProduto
+    CardProduto,
+  },
+  props: {
+    categoriaFiltrada: {
+      type: String,
+      default: 'Todos',
+    },
   },
   data() {
     return {
-      produtos: produtos,
-      paginas: paginas,
+      produtos,
       paginaAtual: 1,
     };
-  }
-  ,
+  },
   computed: {
+    produtosFiltrados() {
+      if (this.categoriaFiltrada === 'Todos') {
+        return this.produtos;
+      }
+      return this.produtos.filter(
+        (p) => p.categoria === this.categoriaFiltrada
+      );
+    },
+    paginas() {
+      return Math.ceil(this.produtosFiltrados.length / produtosPorPagina);
+    },
     produtosPaginados() {
-      const inicio = (this.paginaAtual - 1) * prodtosPorPagina;
-      return this.produtos.slice(inicio, inicio + prodtosPorPagina);
-    }
+      const inicio = (this.paginaAtual - 1) * produtosPorPagina;
+      return this.produtosFiltrados.slice(inicio, inicio + produtosPorPagina);
+    },
   },
   methods: {
     mudarPagina(pagina) {
       this.paginaAtual = pagina;
-    }
-  }
+    },
+  },
+  watch: {
+    categoriaFiltrada() {
+      this.paginaAtual = 1; // reseta pagina quando muda categoria
+    },
+  },
 };
 </script>
 
@@ -60,19 +81,5 @@ export default {
 .home {
   text-align: center;
   margin-top: 60px;
-}
-.btn {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 10px 24px;
-  background: #42b983;
-  color: #fff;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: background 0.2s;
-}
-.btn:hover {
-  background: #369870;
 }
 </style>
