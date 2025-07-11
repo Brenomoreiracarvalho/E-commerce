@@ -1,7 +1,15 @@
 <template>
   <v-card>
-    <AppTopperBAr @categoria-selecionada="categoriaSelecionada = $event" @abrir-carrinho="drawerCarrinho = true" />
-    <home :categoria-filtrada="categoriaSelecionada" @adicionar-ao-carrinho="adicionarAoCarrinho" />
+    <AppTopperBAr
+      @categoria-selecionada="categoriaSelecionada = $event"
+      @abrir-carrinho="drawerCarrinho = true"
+    />
+
+    <home
+      :categoria-filtrada="categoriaSelecionada"
+      @adicionar-ao-carrinho="adicionarAoCarrinho"
+    />
+
     <CarrinhoDeCompras
       v-model="drawerCarrinho"
       :carrinho="carrinho"
@@ -11,7 +19,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch, onMounted } from 'vue';
 import home from '../components/Home/index.vue';
 import AppTopperBAr from '../components/Cabeçalho/AppTopperBAr.vue';
 import CarrinhoDeCompras from '../components/Carrinho/CarrinhoDeCompras.vue';
@@ -19,6 +27,8 @@ import CarrinhoDeCompras from '../components/Carrinho/CarrinhoDeCompras.vue';
 const categoriaSelecionada = ref('Todos');
 const carrinho = reactive([]);
 const drawerCarrinho = ref(false);
+
+
 function adicionarAoCarrinho(produto) {
   const item = carrinho.find(i => i.produto.id === produto.id);
   if (item) {
@@ -38,5 +48,20 @@ function removerDoCarrinho(produtoId) {
 const totalCarrinho = computed(() =>
   carrinho.reduce((acc, item) => acc + item.produto.preco * item.quantidade, 0)
 );
-</script>
 
+watch(
+  carrinho,
+  (newVal) => {
+    localStorage.setItem('carrinho', JSON.stringify(newVal));
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  const salvo = localStorage.getItem('carrinho');
+  if (salvo) {
+    const carrinhoSalvo = JSON.parse(salvo);
+    carrinhoSalvo.forEach(item => carrinho.push(item));
+  }
+});
+</script>

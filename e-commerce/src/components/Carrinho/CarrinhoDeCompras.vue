@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    right
+    location="right"
     temporary
     width="400"
   >
@@ -31,6 +31,10 @@
     <div class="pa-4 font-weight-bold">
       Total: R$ {{ total.toFixed(2).replace('.', ',') }}
     </div>
+
+    <router-link to="/checkout">
+      <v-btn color="green" class="mt-4" block>Finalizar Compra</v-btn>
+    </router-link>
   </v-navigation-drawer>
 </template>
 

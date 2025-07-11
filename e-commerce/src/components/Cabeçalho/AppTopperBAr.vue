@@ -1,6 +1,6 @@
 <template>
   <v-toolbar class="px-4 py-2" height="auto" flat>
-    <v-btn variant="plain" to="/" class="text-h6 mr-4">
+    <v-btn variant="plain" to="/" class="text-h6 mr-4" @click="selecionarCategoria('Todos')">
       E-COMMERCE
     </v-btn>
 
