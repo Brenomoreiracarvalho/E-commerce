@@ -29,13 +29,11 @@
             >
               <v-icon size="16">mdi-plus</v-icon>
             </v-btn>
-
-
           </v-list-item-subtitle>
         </v-list-item-content>
 
         <div>
-         R$ {{ itemTotal(item).toFixed(2).replace('.', ',') }}
+          R$ {{ itemTotal(item).toFixed(2).replace('.', ',') }}
         </div>
 
         <v-list-item-action>
@@ -48,9 +46,19 @@
 
     <v-divider class="my-3" />
 
-    <div class="text-right font-weight-bold">
+    <div class="text-right font-weight-bold mb-4">
       Total: R$ {{ total.toFixed(2).replace('.', ',') }}
     </div>
+
+    <v-row justify="end">
+      <v-btn
+        color="primary"
+        :disabled="carrinho.length === 0"
+        @click="$emit('proximoStep')"
+      >
+        Próximo
+      </v-btn>
+    </v-row>
   </v-card>
 </template>
 
@@ -64,7 +72,7 @@ const props = defineProps({
   }
 });
 
-defineEmits(['aumentar', 'diminuir', 'remover']);
+defineEmits(['aumentar', 'diminuir', 'remover', 'proximoStep']);
 
 const total = computed(() =>
   props.carrinho.reduce(
@@ -74,5 +82,5 @@ const total = computed(() =>
 );
 
 const itemTotal = item =>
-  item.produto.preco * item.quantidade
+  item.produto.preco * item.quantidade;
 </script>

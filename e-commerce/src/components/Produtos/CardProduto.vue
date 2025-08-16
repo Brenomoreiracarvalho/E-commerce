@@ -1,65 +1,90 @@
 <template>
-  <v-card variant="tonal">
-    <v-img
-      :src="produto.imagem"
-      height="200px"
-      class="white--text align-end"
-    ></v-img>
-    <v-card-title class="text-h5">{{ produto.nome }}</v-card-title>
-    <v-card-subtitle class="text-subtitle-1">{{ produto.descricao }}</v-card-subtitle>
-    <v-card-text>
-      <p>{{ produto.detalhes }}</p>
-      <p>Preço: R$ {{ produto.preco.toFixed(2).replace('.', ',') }}</p>
-    </v-card-text>
-    <v-card-actions>
-      <v-row class="w-100" dense>
-        <v-col
-          cols="12"
-          sm="12"
-        >
-          <v-btn
-            color="primary"
-            variant="outlined"
-            @click="$emit('adicionar')"
-          >
-            Adicionar ao Carrinho
-          </v-btn>
-        </v-col>
-        <v-col
-          cols="12"
-          sm="12"
-        >
-          <v-btn
-            color="secondary"
-            variant="text"
-          >
-            Comprar Agora
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-card-actions>
-  </v-card>
+  <v-container class="my-6">
+    <template v-if="carrinho.length > 0">
+      <div v-if="step === 1">
+        <ResumoPedido
+          :carrinho="carrinho"
+          @aumentar="aumentarProduto"
+          @diminuir="diminuirProduto"
+          @remover="removerDoCarrinho"
+        />
+      </div>
+
+      <div v-else-if="step === 2">
+        <FormularioEntrega
+          ref="formularioEntregaRef"
+          @validouFormulario="proximoStep"
+          @voltarStep="voltarStep"
+        />
+      </div>
+
+      <div v-else-if="step === 3">
+        <v-card class="pa-6 text-center">Tela de Pagamento</v-card>
+      </div>
+    </template>
+
+    <template v-else>
+      <v-card class="pa-6 text-center" elevation="1">
+        <v-icon size="48" color="grey">mdi-cart-off</v-icon>
+        <h3 class="mt-2">Seu carrinho está vazio</h3>
+        <p>Adicione produtos antes de finalizar sua compra.</p>
+        <router-link to="/">
+          <v-btn color="primary" class="mt-4">Voltar à loja</v-btn>
+        </router-link>
+      </v-card>
+    </template>
+  </v-container>
 </template>
 
-<script>
-export default {
-  name: 'CardProduto',
-  props: {
-    produto: {
-      type: Object,
-      required: true
-    }
-  }
-};
-</script>
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import ResumoPedido from '@/components/Checkout/ResumoPedido.vue'
+import FormularioEntrega from '@/components/Checkout/FormularioEntrega.vue'
 
+const carrinho = ref([])
+const step = ref(1)
+const router = useRouter()
+const formularioEntregaRef = ref(null)
 
-<style scoped>
-.v-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+onMounted(() => {
+  const salvo = localStorage.getItem('carrinho')
+  carrinho.value = salvo ? JSON.parse(salvo) : []
+})
+
+function salvarCarrinho() {
+  localStorage.setItem('carrinho', JSON.stringify(carrinho.value))
 }
-</style>
 
+function aumentarProduto(produto) {
+  const item = carrinho.value.find(i => i.produto.id === produto.id)
+  if (item) {
+    item.quantidade++
+    salvarCarrinho()
+  }
+}
+
+function diminuirProduto(produtoId) {
+  const item = carrinho.value.find(i => i.produto.id === produtoId)
+  if (item && item.quantidade > 1) {
+    item.quantidade--
+    salvarCarrinho()
+  }
+}
+
+function removerDoCarrinho(produtoId) {
+  const index = carrinho.value.findIndex(i => i.produto.id === produtoId)
+  if (index !== -1) {
+    carrinho.value.splice(index, 1)
+    salvarCarrinho()
+  }
+}
+
+function proximoStep() {
+  if (step.value < 3) step.value++
+}
+
+function voltarStep() {
+  if (step.value > 1) step.value--
+}
+</script>

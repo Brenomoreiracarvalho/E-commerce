@@ -1,13 +1,28 @@
 <template>
   <v-container class="my-6">
     <template v-if="carrinho.length > 0">
-      <ResumoPedido
-        :carrinho="carrinho"
-        @aumentar="aumentarProduto"
-        @diminuir="diminuirProduto"
-        @remover="removerDoCarrinho"
-      />
-      <!-- Em breve: Formulário de Entrega e Pagamento -->
+      <div v-if="step === 1">
+        <ResumoPedido
+          :carrinho="carrinho"
+          @aumentar="aumentarProduto"
+          @diminuir="diminuirProduto"
+          @remover="removerDoCarrinho"
+          @proximoStep="proximoStep"
+        />
+      </div>
+
+      <div v-else-if="step === 2">
+        <FormularioEntrega
+          ref="formularioEntregaRef"
+          @proximoStep="proximoStep"
+          @voltarStep="voltarStep"
+        />
+      </div>
+
+      <div v-else-if="step === 3">
+        <v-card class="pa-6 text-center">Tela de Pagamento</v-card>
+      </div>
+
     </template>
 
     <template v-else>
@@ -23,55 +38,61 @@
   </v-container>
 </template>
 
-<script>
-import ResumoPedido from '@/components/Checkout/ResumoPedido.vue';
+<script setup>
+import { ref, onMounted } from 'vue'
+import ResumoPedido from '@/components/Checkout/ResumoPedido.vue'
+import FormularioEntrega from '@/components/Checkout/FormularioEntrega.vue'
 
-export default {
-  name: 'CheckoutPage',
+const carrinho = ref([])
+const step = ref(1)
+const formularioEntregaRef = ref(null)
 
-  components: {
-    ResumoPedido,
-  },
+onMounted(() => {
+  const salvo = localStorage.getItem('carrinho')
+  carrinho.value = salvo ? JSON.parse(salvo) : []
+})
 
-  data() {
-    return {
-      carrinho: [],
-    };
-  },
+function salvarCarrinho() {
+  localStorage.setItem('carrinho', JSON.stringify(carrinho.value))
+}
 
-  mounted() {
-    const salvo = localStorage.getItem('carrinho');
-    this.carrinho = salvo ? JSON.parse(salvo) : [];
-  },
-
-  methods: {
-    aumentarProduto(produto) {
-      const item = this.carrinho.find(i => i.produto.id === produto.id);
-      if (item) {
-        item.quantidade++;
-        this.salvarCarrinho();
-      }
-    },
-
-    diminuirProduto(produtoId) {
-      const item = this.carrinho.find(i => i.produto.id === produtoId);
-      if (item && item.quantidade > 1) {
-        item.quantidade--;
-        this.salvarCarrinho();
-      }
-    },
-
-    removerDoCarrinho(produtoId) {
-      const index = this.carrinho.findIndex(i => i.produto.id === produtoId);
-      if (index !== -1) {
-        this.carrinho.splice(index, 1);
-        this.salvarCarrinho();
-      }
-    },
-
-    salvarCarrinho() {
-      localStorage.setItem('carrinho', JSON.stringify(this.carrinho));
-    }
+function aumentarProduto(produto) {
+  const item = carrinho.value.find(i => i.produto.id === produto.id)
+  if (item) {
+    item.quantidade++
+    salvarCarrinho()
   }
-};
+}
+
+function diminuirProduto(produtoId) {
+  const item = carrinho.value.find(i => i.produto.id === produtoId)
+  if (item && item.quantidade > 1) {
+    item.quantidade--
+    salvarCarrinho()
+  }
+}
+
+function removerDoCarrinho(produtoId) {
+  const index = carrinho.value.findIndex(i => i.produto.id === produtoId)
+  if (index !== -1) {
+    carrinho.value.splice(index, 1)
+    salvarCarrinho()
+  }
+}
+
+function proximoStep() {
+  if (step.value === 2) {
+    if (formularioEntregaRef.value?.validarFormulario()) {
+      step.value++
+    }
+  } else if (step.value < 3) {
+    step.value++
+  }
+}
+
+
+
+function voltarStep() {
+  if (step.value > 1) step.value--
+}
 </script>
